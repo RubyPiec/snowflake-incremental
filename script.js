@@ -1,190 +1,164 @@
-let c = document.getElementById('snowflake')
-let ctx = c.getContext('2d')
+let player;
 
-let mode = 'C'
+let CTYPES = {
+    SNOWFLAKES: "snowflakes",
+    EVILSNOW: "evil snowflakes"
+} //this looks better tbh
 
-function update(){
-    mode = document.getElementById('temptype').value
+let upgrades = [
+    // 0
+    {
+        "name": "Colder temperatures",
+        "cost": 20,
+        "basecost": 20, //ONLY RELEVANT FOR REPEATABLE UPGRADES
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "Doubles snowflakes gained per click",
+        "onbuy": function(){
+            player.perclick = 2**upgrades[0].bought
+            upgrades[0].cost = upgrades[0].basecost * 5**upgrades[0].bought
+        },
+        "bought": 0,
+        "repeatable": true
+    },
+    {
+        "name": "Self-freezing",
+        "cost": 50,
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "Snowflakes gained is boosted by snowflake amount",
+        "onbuy": function(){
+            
+        },
+        "bought": 0,
+        "repeatable": false
+    },
+    {
+        "name": "beat the game?!?!?!",
+        "cost": 1.9266e8,
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "PogChamp ggs chat isnt this hype af",
+        "onbuy": function(){
 
-    if(mode == 'C'){
-        document.getElementById('temptext').innerHTML = Math.round(document.getElementById('temp').value)
-    } else if(mode == 'F'){
-        document.getElementById('temptext').innerHTML = Math.round(document.getElementById('temp').value*9/5+32)
+        },
+        "bought": 0,
+        "repeatable": false
     }
+]
 
-    let currentsst = Math.round(document.getElementById('sst').value*10)/100
+function save(){
+    localStorage.setItem('playerdata', JSON.stringify(player))
+    let savedText = document.createElement('h4')
+    savedText.innerHTML = 'Saved!'
+    savedText.classList.add('fadeout')
+    setTimeout(function(){
+        savedText.remove()
+    }, 2000)
+    document.getElementById('savedlist').appendChild(savedText)
+}
 
-    if(currentsst % 1 == 0){
-        currentsst = currentsst + '.00'
+function load(){
+    for(let upgrade of upgrades){
+        upgrade.bought = 0
+        if(upgrade.basecost){
+            upgrade.cost = upgrade.basecost
+        }
     }
-    currentsst = String(currentsst).padEnd(4, '0')
-    document.getElementById('ssttext').innerHTML = currentsst + ' g/m³'
-
-    let temp = Number(document.getElementById('temp').value)
-    let sat = Math.round(document.getElementById('sst').value*10)/100
-    if(temp<-22){
-        // saturation 0-0.4, avg 0.2
-        if(sat>0.2){
-            document.getElementById('prediction').innerHTML = 'Prediction: Column'
-        } else{
-            document.getElementById('prediction').innerHTML = 'Prediction: Plate'
-        }
-    } else if(temp < -10){
-        // saturation 1.2. always
-        if(sat>1.2){
-            document.getElementById('prediction').innerHTML = 'Prediction: Dendrite ❅'
-        } else{
-            document.getElementById('prediction').innerHTML = 'Prediction: Plate'
-        }
-    } else if(temp < -3.5){
-        // saturation 0.5-1.2, avg 0.85
-        if(sat>0.85){
-            document.getElementById('prediction').innerHTML = 'Prediction: Needle'
-        } else{
-            document.getElementById('prediction').innerHTML = 'Prediction: Prism'
+    if(localStorage.getItem('playerdata')){
+        player = JSON.parse(localStorage.getItem('playerdata'))
+        for(let buyupg of player.boughtupgrades){
+            upgrades[buyupg].bought++
+            upgrades[buyupg].onbuy()
         }
     } else{
-        // saturation 0-0.5, avg 0.25
-        if(sat>0.25){
-            document.getElementById('prediction').innerHTML = 'Prediction: Dendrite ❅'
-        } else{
-            document.getElementById('prediction').innerHTML = 'Prediction: Plate'
+        player = {
+            "snowflakes": 0,
+            "boughtupgrades": [],
+            "perclick": 1,
+            "autosavefrequency": 10000
+        }
+    }
+    update()
+    updateUpgrades()
+}
+
+load()
+
+function autoplural(word, amount){ 
+    if(amount!=1){
+        return word + 's'
+    }
+    return word
+}
+
+function update(){
+    document.getElementById('snowflakeamount').innerHTML = player.snowflakes + autoplural(' snowflake', player.snowflakes)
+    document.getElementById('asft').innerHTML = Math.round(document.getElementById('asfr').value/10)/100 + 's'
+}
+
+function updateUpgrades(){
+    document.getElementById('upgrades').innerHTML = '<h1>Upgrades</h1>'
+    for(let j in upgrades){
+        let i = upgrades[j]
+        if(i.bought==0||i.repeatable){
+            let upgradeDiv = document.createElement('div')
+            upgradeDiv.classList.add('upgrade')
+
+            let upgName = document.createElement('h2')
+            upgName.classList.add('upgtitle')
+            upgName.innerHTML = i.name
+
+            let upgCost = document.createElement('h5')
+            upgCost.classList.add('upgcost')
+            upgCost.innerHTML = i.cost + ' ' + i.currency
+
+            let upgDesc = document.createElement('h3')
+            upgDesc.innerHTML = i.desc
+
+            upgradeDiv.appendChild(upgName)
+            upgradeDiv.appendChild(upgCost)
+            upgradeDiv.appendChild(upgDesc)
+
+            upgradeDiv.addEventListener('click', function(){
+                console.log(player[i.currency])
+                console.log(i.cost)
+                if(player[i.currency] >= i.cost){
+                    i.bought++
+                    console.log('wow')
+                    player[i.currency] -= i.cost
+                    player.boughtupgrades.push(j)
+                    i.onbuy()
+                    updateUpgrades()
+                }
+                update()
+            })
+
+            document.getElementById('upgrades').appendChild(upgradeDiv)
         }
     }
 }
 
-
-document.getElementById('temp').addEventListener('input', function(){
+document.getElementById('snowflake').addEventListener('click', function(){
+    player.snowflakes+=player.perclick
     update()
 })
 
-document.getElementById('temptype').addEventListener('change', function(){
+let saveInterval = setInterval(save, player.autosavefrequency)
+
+document.getElementById('asfr').addEventListener('input', function(){
+    player.autosavefrequency = Number(document.getElementById('asfr').value)
+    clearInterval(saveInterval)
+    saveInterval = setInterval(save, player.autosavefrequency)
     update()
 })
 
-document.getElementById('sst').addEventListener('input', function(){
-    update()
+let settingsopen = false
+document.getElementById('settings').addEventListener('click', function(){
+    settingsopen = !settingsopen
+    if(settingsopen){
+        document.getElementById('settingsmenu').style.display = 'block'
+    } else{
+        document.getElementById('settingsmenu').style.display = 'none'
+    }
 })
 
 update()
-
-function genSnowflake(){
-    ctx.clearRect(-250,-250,1000,1000)
-    let temp = Number(document.getElementById('temp').value)
-    let sat = Math.round(document.getElementById('sst').value*10)/100
-
-    if(temp<-22){
-        let snowflakeSat = Math.random()*0.4
-        if(sat>snowflakeSat){
-            // GENERATE COLUMN FOR LOWER VALUES, PRISM FOR HIGHER VALUES
-        } else{
-            // GENERATE SOLID PLATE FOR LOWER VALUES, THIN PLATE FOR HIGHER VALUES
-            if(sat<Math.random()*snowflakeSat){
-                getSolidPlate(Math.random()*40+50)
-            }
-        }
-    } else if(temp<-10){
-        let snowflakeSat = 1.2
-        if(sat>snowflakeSat){
-            // GENERATE SECTORED PLATES FOR LOWER VALUES, GENERATE DENDRITE FOR HIGHER
-        } else{
-            // GENERATE SOLID PLATES FOR LOWER VALUES, THIN PLATE FOR HIGHER VALUES
-        }
-    } else if(temp<-3.5){
-        let snowflakeSat = Math.random()*0.7+0.5
-        if(sat>snowflakeSat){
-            // GENERATE HOLLOW PRISMS FOR LOWER VALUES, NEEDLES FOR HIGHER VALUES
-        } else{
-            // GENERATE SOLID PRISMS FOR LOWER VALUES, HOLLOW PRISMS FOR HIGHER VALUES
-        }
-    } else{
-        let snowflakeSat = Math.random()*0.5
-        if(sat>snowflakeSat){
-            // GENERATE THIN PLATES FOR LOWER VALUES, DENDRITES FOR HIGHER VALUES
-            if(sat+Math.random()*0.5-0.5<0.2){
-                
-            } else{
-                // dendrite code
-            }
-        } else{
-            // GENERATE SOLID PLATE.
-            getSolidPlate(Math.random()*25+50)
-        }
-    }
-}
-
-ctx.translate(250,250)
-
-function getSolidPlate(size){
-    ctx.beginPath()
-
-    let startAngle = Math.random()
-    let startPoint = [size * Math.cos(startAngle), size * Math.sin(startAngle)]
-
-    let ra = Math.PI/3 // ra = Rotation Angle. equal to 60 degrees (because 360/6 = 60)
-
-    ctx.moveTo(startPoint[0], startPoint[1])
-    let nextPoint = startPoint
-    for(let point=0;point<6;point++){
-        nextPoint = [nextPoint[0]*Math.cos(ra)-nextPoint[1]*Math.sin(ra), nextPoint[0]*Math.sin(ra)+nextPoint[1]*Math.cos(ra)]
-        ctx.lineTo(nextPoint[0], nextPoint[1])
-    }
-
-    let sHSPT = [size*2/3 * Math.cos(startAngle), size*2/3 * Math.sin(startAngle)] //smaller Hexagon StartPoinT
-    ctx.moveTo(sHSPT[0], sHSPT[1])
-    nextPoint = sHSPT
-    for(let point=0;point<6;point++){
-        nextPoint = [nextPoint[0]*Math.cos(ra)-nextPoint[1]*Math.sin(ra), nextPoint[0]*Math.sin(ra)+nextPoint[1]*Math.cos(ra)]
-        ctx.lineTo(nextPoint[0], nextPoint[1])
-    }
-    
-    ctx.stroke()
-}
-
-
-function getThinPlate(size){
-    ctx.beginPath()
-
-    let startAngle = Math.random()
-    let startPoint = [size * Math.cos(startAngle), size * Math.sin(startAngle)]
-
-    let ra = Math.PI/3 // thin plates are still rotated 6 times, like all snowflakes. isn't that cool?
-
-    ctx.moveTo(startPoint[0], startPoint[1])
-    let nextPoint = startPoint // this is the next point of the regular hexagon
-    let lastPoint = nextPoint
-
-    let outPush = size/3*(Math.random()*0.1+0.1)
-
-    for(let point=0;point<6;point++){
-        nextPoint = [nextPoint[0]*Math.cos(ra)-nextPoint[1]*Math.sin(ra), nextPoint[0]*Math.sin(ra)+nextPoint[1]*Math.cos(ra)]
-
-        let dx = nextPoint[0]-lastPoint[0]
-        let dy = nextPoint[1]-lastPoint[1]
-
-        ctx.lineTo(dx/3+lastPoint[0], dy/3+lastPoint[1])
-
-        ctx.lineTo(dx/3+lastPoint[0]-outPush, dy/3+lastPoint[1]-outPush)
-
-        ctx.lineTo(dx*2/3+lastPoint[0]-outPush, dy*2/3+lastPoint[1]-outPush)
-
-        //todo tomorrow: make the outPush perpendicular to the line
-        ctx.lineTo(dx*2/3+lastPoint[0], dy*2/3+lastPoint[1])
-
-        ctx.lineTo(nextPoint[0], nextPoint[1])
-
-        lastPoint = nextPoint
-    }
-
-    let sHSPT = [size*2/3 * Math.cos(startAngle), size*2/3 * Math.sin(startAngle)] //smaller Hexagon StartPoinT
-    ctx.moveTo(sHSPT[0], sHSPT[1])
-    nextPoint = sHSPT
-    for(let point=0;point<6;point++){
-        nextPoint = [nextPoint[0]*Math.cos(ra)-nextPoint[1]*Math.sin(ra), nextPoint[0]*Math.sin(ra)+nextPoint[1]*Math.cos(ra)]
-        ctx.lineTo(nextPoint[0], nextPoint[1])
-    }
-    
-    ctx.stroke()
-}
-
-
+updateUpgrades()

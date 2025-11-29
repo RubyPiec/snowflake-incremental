@@ -1,34 +1,44 @@
 <html>
     <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-        <title>Snowflake Generator</title>
-        <link rel="stylesheet" href="sheets.css">
+        <title>Snowflake Incremental</title>
+        <link href="sheets.css" rel="stylesheet">
     </head>
-    <body style="text-align: center;">
-        <form>
-            <label for="temperature">Temperature: </label>
-            <input id="temp" type="range" value="0" min="-40" max="0" step="0.2" name="temperature" style="direction: rtl;">
-            <span id="temptext">0</span>
-            <select id="temptype">
-                <option value="C">°C</option>
-                <option value="F">°F</option>
-            </select>
+    <body>
+        <!--<h1>Hi guys welcome to snowflake incremetal</h1>
+        <h2>today were gonna be making some snowflakes! hope you enjoy</h2> i dont know why im keeping this but i put this here to test if hackatime works
+        <h3>dont forget to like subscribe adn like again</h3>
+        <h4>thanks</h4>-->
+        <img class="settings" id="settings" src="gear.png">
+        <div class="maingame">
+            <h1 id="snowflakeamount" class="sfamount">0 snowflakes</h1>
+            <div class="rotator">
+                <img id="snowflake" class="snowflake" src="snowflake.png" draggable="false">
+            </div>
+        </div>
+        <div id="upgrades" class="upgrades">
+            <h1>Upgrades</h1>
+            <div class="upgrade">
+                <h2 class="upgtitle">Hi guys!</h2>
+                <h5 class="upgcost">4 snowflakes</h2>
+                <h3>Look at me, I'm an upgrade!</h3>
+            </div>
+            <div class="upgrade">
+                <h2 class="upgtitle">evil</h2>
+                <h5 class="upgcost">16 snowflakes</h2>
+                <h3>i am the EVIL upgrade >:3</h3>
+            </div>
+        </div>
+        <div class="saved" id="savedlist">
+        </div>
+        <div id="settingsmenu" class="settingsmenu" style="display:none;">
+            <h1>THE SETTINGS!!</h1>
+            <h2>Saving</h2>
+            <span>Autosave frequency: </span>
+            <input id="asfr" type="range" min="500" max="20000" value=10000> <!-- Auto Save Frequency Range -->
+            <span id="asft">10s</span> <!-- Range -> Text -->
             <br>
-            <br>
-            <label for="supersaturation">Supersaturation: </label>
-            <input name="supersaturation" id="sst" type="range" value="0" min="0" max="20" step="0.2">
-            <span id="ssttext">0.00 g/m³</span>
-        </form>
-        <br>
-        <br>
-        <span id="prediction">Prediction: </span><br>
-        <button onclick="genSnowflake()">Generate</button>
-        <br>
-        <br>
-        <br>
-        <canvas class="snowflake" id="snowflake" width="500px" height="500px">
-
-        </canvas>
+            <button onclick="if(confirm('ARE YOU SURE YOU WOULD LIKE TO CLEAR *ALL* YOUR PROGRESS? THIS IS IRREVERSIBLE.')){localStorage.clear();load();update();updateUpgrades()}">CLEAR ALL PROGRESS</button>
+        </div>
         <script src="script.js"></script>
     </body>
 </html>

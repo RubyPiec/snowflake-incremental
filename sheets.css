@@ -1,5 +1,135 @@
-.snowflake{
+html, body{
+    background-color: black;
+    user-select: none;
+    color: white;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+/*.snowflake{
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    top: 60%;
+    transform: translate(-50%, -50%)
+}*/
+
+.rotator{
+    animation: rotate linear infinite 50s;
+}
+
+.snowflake{
+    cursor: pointer;
+    transition: transform 0.5s;
+}
+
+.snowflake:hover{
+    transform: scale(1.1);
+}
+
+.maingame{
+    width: 68%;
+    text-align: center;
+    position: absolute;
+    left: 34%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.upgrades{
+    overflow-y: scroll;
+    padding-left: 2%;
+    height: 100%;
+    border-left: 5px solid white;
+    width: 30%;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.upgrades h1{
+    font-size: 50px;
+}
+
+.upgrades .upgrade{
+    cursor: pointer;
+    background: linear-gradient(90deg,rgba(15, 15, 15, 1) 0%, rgba(41, 41, 41, 1) 100%);
+    border: 5px solid white;
+    border-radius: 10px;
+    padding-left: 5%;
+    margin-right: 5%;
+    position: relative;
+    margin-bottom: 5%;
+    transition: transform 0.3s;
+}
+
+.upgrade:hover{
+    transform: scale(1.05);
+}
+
+.upgcost{
+    position: absolute;
+    top: 0;
+    right: 5%;
+}
+
+.upgtitle{
+    position: relative;
+    left: -10px;
+}
+
+.settings{
+    cursor: pointer;
+    position: absolute;
+}
+
+.settingsmenu{
+    background-color: rgba(10, 10, 10, 0.9);
+    border: 5px solid grey;
+    padding: 2%;
+    position: absolute;
+    left: 8%;
+    top: 8%;
+    width: 80%;
+    height: 80%
+}
+
+.saved{
+    position: absolute;
+    left: 2%;
+    bottom: 2%;
+}
+
+.hidden{
+    display: none;
+}
+
+.saved h4{
+    padding: 4px;
+    border: 2px solid green;
+    border-radius: 5px;
+    margin: 0;
+    margin-top: 2px;
+}
+
+.fadeout{
+    animation: 2s fadeout forwards;
+}
+
+@keyframes fadeout{
+    from{
+        opacity: 1;
+    }
+    to{
+        opacity: 0;
+    }
+}
+
+@keyframes rotate{
+    from{
+        transform: rotate(0deg)
+    }
+    to{
+        transform: rotate(360deg)
+    }
 }
