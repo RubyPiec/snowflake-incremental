@@ -6,6 +6,61 @@ let CTYPES = {
     SNOWBALLS: "snowballs"
 } //this looks better tbh
 
+let achmenuopen = false
+
+let listofachievements = {
+    "begin": {
+        "name": "Simple beginnings",
+        "displayname": "Simple",
+        "desc": "Get 25 snowflakes",
+        "obtained": false
+    },
+    "thousands": {
+        "name": "In the thousands!",
+        "displayname": "1,000",
+        "desc": "Get 1000 snowflakes",
+        "obtained": false
+    },
+    "nohumidity": {
+        "name": "Where's the humidity?",
+        "displayname": "No humidity", 
+        "desc": "Reach a humidity reduction above 30%",
+        "obtained": false
+    },
+    "humidity": {
+        "name": "There's the humidity!",
+        "displayname": "Humidity",
+        "desc": "After getting No humidity, get your humidity reduction back below 5%.",
+        "obtained": false
+    }
+}
+
+for([id, ach] of Object.entries(listofachievements)){
+    let achievement = document.createElement('div')
+    achievement.classList.add('achievement')
+
+    let achievementName = document.createElement('div')
+    achievementName.innerHTML = ach.displayname
+    achievementName.classList.add('achievementname')
+
+    let tooltip = document.createElement('span')
+    tooltip.classList.add('achdesc')
+    tooltip.innerHTML = ach.desc
+    achievementName.appendChild(tooltip)
+
+    achievement.appendChild(achievementName)
+
+    document.getElementById('achievements').appendChild(achievement)
+}
+
+function obtainAchievement(id){
+    if(!player.achievementsobtained.includes(id)){
+        listofachievements[id].obtained = true
+        player.achievementsobtained.push(id)
+        //also do cool achievement animation ig
+    }
+}
+
 let upgrades = [
     { // 0
         "name": "Colder temperatures",
@@ -90,7 +145,7 @@ let upgrades = [
         "repeatable": false
     },
     {
-        "name": "Cloudy day",
+        "name": "Cloudier day",
         "cost": 50000,
         "basecost": 50000,
         "currency": CTYPES.SNOWFLAKES,
@@ -125,6 +180,50 @@ let upgrades = [
         "bought": 0,
         "repeatable": false
     },
+    { // 10
+        "name": "Liquid nitrogen",
+        "cost": 250000,
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "Multiplies snowflake gain per click by 5.",
+        "onbuy": function(){
+            calcPerClick()
+        },
+        "bought": 0,
+        "repeatable": false
+    },
+    {
+        "name": "Time anti-freeze",
+        "cost": 3,
+        "currency": CTYPES.SNOWBALLS,
+        "desc": "Offline progress is 2.5 times as effective.",
+        "onbuy": function(){
+            
+        },
+        "bought": 0,
+        "repeatable": false
+    },
+    {
+        "name": "Spherical snowflakes",
+        "cost": 1111111,
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "Double snowball gain.",
+        "onbuy": function(){
+
+        },
+        "bought": 0,
+        "repeatable": false
+    },
+    {
+        "name": "Fan",
+        "cost": 1200000,
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "All snowflake gain is doubled.",
+        "onbuy": function(){
+
+        },
+        "bought": 0,
+        "repeatable": false
+    },
     {
         "name": "beat the game?!?!?!",
         "cost": 1500,
@@ -139,7 +238,7 @@ let upgrades = [
 ]
 
 function calcPerClick(){
-    player.perclick = 1.5**upgrades[0].bought*3**upgrades[7].bought
+    player.perclick = 1.5**upgrades[0].bought*3**upgrades[7].bought*5**upgrades[10].bought
 }
 
 function calcPerSecond(){
@@ -186,9 +285,15 @@ function load(){
             if(upgrades[5].bought){
                 spassed *= 2
             }
+            if(upgrades[11].bought){
+                spassed *= 2.5
+            }
             for(let second=0; second<spassed; second++){
                 giveSnowflakes(player.persecond)
             }
+        }
+        for(let i of player.achievementsobtained){
+            listofachievements[i].obtained = true
         }
     } else{
         player = {
@@ -203,7 +308,8 @@ function load(){
             "persecond": 0,
             "lastsave": Date.now(),
             "snowballs": 0,
-            "lastascend": Date.now()
+            "lastascend": Date.now(),
+            "achievementsobtained": []
         }
     }
 
@@ -252,6 +358,9 @@ function snowflakeToSnowball(snowflakeam){
     if(upgrades[8].bought>0){
         snowballamt = snowballamt * 1.5
     }
+    if(upgrades[12].bought>0){
+        snowballamt = snowballamt * 2
+    }
     return snowballamt;
 }
 
@@ -280,10 +389,18 @@ function update(){
     } else{
         document.getElementById('snowballamount').classList.add('hidden')
     }
+
+    // ACHIEVEMENT ZONE
+    if(player.snowflakes >= 25){
+        obtainAchievement('begin')
+    }
+    if(player.snowflakes >= 1000){
+        obtainAchievement('thousands')
+    }
 }
 
 function updateUpgrades(){
-    document.getElementById('upgrades').innerHTML = '<h1>Upgrades</h1><button class="boughtupgmenu" onclick="toggleupgrademenu()">See current upgrades</button>'
+    document.getElementById('upgrades').innerHTML = '<div class="topbar"><h1>Upgrades</h1><button class="boughtupgmenu" onclick="toggleupgrademenu()">See purchased upgrades</button></div>'
     for(let j in upgrades){
         let i = upgrades[j]
         if(i.bought==0||i.repeatable){
@@ -353,6 +470,12 @@ function giveSnowflakes(amount){
         amount = amount * 1.5
     }
 
+    if(upgrades[13]["bought"]>0){
+        amount = amount * 1.5
+    }
+
+    amount = amount * (1+player.snowballs/100)
+
     player.snowflakes+=amount
     update()
 }
@@ -381,7 +504,8 @@ function ascend(){
     updateAll()
 }
 document.getElementById('ascendbutton').addEventListener('click', function(){
-    if(confirm('Would you like to lose ALL your progress for ' + Math.floor(snowflakeToSnowball(player.snowflakes)) + ' snowballs?')){
+    let toObtain = Math.floor(snowflakeToSnowball(player.snowflakes))
+    if(confirm('Would you like to lose ALL your progress for ' + toObtain + autoplural('snowball', toObtain), ' snowflakes?')){
         ascend()
     }
 })
@@ -414,6 +538,60 @@ document.getElementById('settings').addEventListener('click', function(){
         document.getElementById('settingsmenu').style.display = 'none'
     }
 })
+
+document.getElementById('achb').addEventListener('click', function(){
+    achmenuopen = !achmenuopen
+    if(achmenuopen){
+        document.getElementById('achievements').classList.remove('hidden')
+    } else{
+        document.getElementById('achievements').classList.add('hidden')
+    }
+})
+
+let upgmenuopen = false
+function toggleupgrademenu(){
+    if(upgmenuopen){
+        document.getElementById('currentupgrades').classList.add('hidden')
+    } else{
+        let prevappeared = []
+        document.getElementById('currentupgrades').innerHTML = ''
+        for(i of player.boughtupgrades){
+            if(!prevappeared.includes(i)){
+                let upgradeDiv = document.createElement('div')
+                upgradeDiv.classList.add('upgrade')
+
+                let upgName = document.createElement('h2')
+                upgName.classList.add('upgtitle')
+                upgName.innerHTML = upgrades[i].name
+
+                let upgDesc = document.createElement('h3')
+                upgDesc.innerHTML = upgrades[i].desc
+
+                upgradeDiv.appendChild(upgName)
+                if(upgrades[i].repeatable){
+                    let upgBought = document.createElement('h4')
+                    upgBought.innerHTML = 'x' + upgrades[i].bought
+                    upgBought.classList.add('upgcost')
+                    upgradeDiv.appendChild(upgBought)
+                }
+                upgradeDiv.appendChild(upgDesc)
+
+                switch (i.currency){
+                    case CTYPES.SNOWFLAKES:
+                        upgradeDiv.classList.add('snowflakeupg')
+                        break
+                    case CTYPES.SNOWBALLS:
+                        upgradeDiv.classList.add('snowballupg')
+                        break
+                }
+                prevappeared.push(i)
+                document.getElementById('currentupgrades').appendChild(upgradeDiv)
+            }
+        }
+        document.getElementById('currentupgrades').classList.remove('hidden')
+    }
+    upgmenuopen = !upgmenuopen
+}
 
 function updateAll(){
     update()

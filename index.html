@@ -10,6 +10,7 @@
         <h4>thanks</h4>-->
         <img class="settings" id="settings" src="gear.png">
         <span class="saveb" id="saveb">Save!</span>
+        <img class="achs" id="achb" src="achs.png">
         <div class="maingame">
             <h1 id="ascendbutton" class="ascendb hidden">CREATE SNOWBALL (+0)</h1>
             <h3 id="snowballamount" class="sbamount hidden">0 snowballs</h3>
@@ -20,7 +21,9 @@
             </div>
         </div>
         <div id="upgrades" class="upgrades">
-            <h1>Upgrades</h1>
+            <div class="topbar">
+                <h1>Upgrades</h1>
+            </div>
             <div class="upgrade">
                 <h2 class="upgtitle">Hi guys!</h2>
                 <h5 class="upgcost">4 snowflakes</h2>
@@ -52,6 +55,11 @@
             <span>Snowflake rotation speed: </span>
             <input id="spinspeed" type="range" min="0" max="5" step="0.01" value="1.20">
             <span id="spintext">1.20 rpm</span>
+        </div>
+        <div id="currentupgrades" class="curupg hidden">
+        </div>
+        <div id="achievements" class="achievements hidden">
+
         </div>
         <script src="script.js"></script>
     </body>
