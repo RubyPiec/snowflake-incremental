@@ -2,20 +2,20 @@ let player;
 
 let CTYPES = {
     SNOWFLAKES: "snowflakes",
-    EVILSNOW: "evil snowflakes"
+    EVILSNOW: "evil snowflakes",
+    SNOWBALLS: "snowballs"
 } //this looks better tbh
 
 let upgrades = [
-    // 0
-    {
+    { // 0
         "name": "Colder temperatures",
         "cost": 20,
         "basecost": 20, //ONLY RELEVANT FOR REPEATABLE UPGRADES
         "currency": CTYPES.SNOWFLAKES,
         "desc": "Multiplies snowflakes gained per click by 1.5",
         "onbuy": function(){
-            player.perclick = 1.5**upgrades[0].bought
-            upgrades[0].cost = upgrades[0].basecost * 5**upgrades[0].bought
+            calcPerClick()
+            this.cost = this.basecost * 5**this.bought
         },
         "bought": 0,
         "repeatable": true
@@ -34,17 +34,19 @@ let upgrades = [
     {
         "name": "Bucket",
         "cost": 100,
+        "basecost": 100,
         "currency": CTYPES.SNOWFLAKES,
         "desc": "Collects 0.5 snowflakes per second",
         "onbuy": function(){
-            player.persecond += 0.5
+            this.cost = Math.floor(this.basecost * 1.3**this.bought)
+            calcPerSecond()
         },
         "bought": 0,
-        "repeatable": false
+        "repeatable": true
     },
     {
         "name": "Permafrost",
-        "cost": 500,
+        "cost": 1000,
         "currency": CTYPES.SNOWFLAKES,
         "desc": "All snowflake gain is tripled",
         "onbuy": function(){
@@ -58,14 +60,25 @@ let upgrades = [
         "cost": 9000,
         "basecost": 9000,
         "currency": CTYPES.SNOWFLAKES,
-        "desc": "Decreases the cap set by humidity",
+        "desc": "Humidity caps snowflakes less aggressively",
         "onbuy": function(){
-            upgrades[4].cost = upgrades[4].basecost * 9**upgrades[4].bought
+            this.cost = this.basecost * 9**this.bought
         },
         "bought": 0,
         "repeatable": true
     },
     { // 5
+        "name": "Snow bursts",
+        "cost": 15000,
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "20% chance that any event that gives snowflakes is tripled.",
+        "onbuy": function(){
+
+        },
+        "bought": 0,
+        "repeatable": false
+    },
+    { 
         "name": "Longer winters",
         "cost": 30000,
         "currency": CTYPES.SNOWFLAKES,
@@ -77,9 +90,45 @@ let upgrades = [
         "repeatable": false
     },
     {
-        "name": "beat the game?!?!?!",
-        "cost": 1.9266e8,
+        "name": "Cloudy day",
+        "cost": 50000,
+        "basecost": 50000,
         "currency": CTYPES.SNOWFLAKES,
+        "desc": "Produces 10 snowflakes per second, and snowflakes gained per click is multiplied by 3.",
+        "onbuy": function(){
+            calcPerClick()
+            calcPerSecond()
+            this.cost = this.basecost * 5**this.bought
+        },
+        "bought": 0,
+        "repeatable": true
+    },
+    {
+        "name": "Seeing... sesquiple?", //former title was "Seeing double" but it also multiplied by 2 lmao so I needed to change it to this
+        "cost": 1,
+        "currency": CTYPES.SNOWBALLS,
+        "desc": "Multiplies EVERY CURRENCY by 1.5.",
+        "onbuy": function(){
+            
+        },
+        "bought": 0,
+        "repeatable": false
+    },
+    {
+        "name": "Ice cubes",
+        "cost": 150000,
+        "currency": CTYPES.SNOWFLAKES,
+        "desc": "Gain more snowflakes per second depending on your time since last snowball creation.",
+        "onbuy": function(){
+            
+        },
+        "bought": 0,
+        "repeatable": false
+    },
+    {
+        "name": "beat the game?!?!?!",
+        "cost": 1500,
+        "currency": CTYPES.SNOWBALLS,
         "desc": "PogChamp ggs chat isnt this hype af",
         "onbuy": function(){
 
@@ -88,6 +137,19 @@ let upgrades = [
         "repeatable": false
     }
 ]
+
+function calcPerClick(){
+    player.perclick = 1.5**upgrades[0].bought*3**upgrades[7].bought
+}
+
+function calcPerSecond(){
+    player.persecond = 0.5*upgrades[2].bought+10*upgrades[7].bought
+    if(upgrades[9]["bought"]>0){
+        player.persecond += (Date.now()-player.lastascend)/60000
+    }
+}
+
+let sps = setInterval(calcPerSecond,1000)
 
 function save(){
     player.lastsave = Date.now()
@@ -136,10 +198,12 @@ function load(){
             "settings": {
                 "autosavefrequency": 10000,
                 "offlineprogress": true,
-                "spinspeed": 0.83
+                "spinspeed": 1.20
             },
             "persecond": 0,
-            "lastsave": Date.now()
+            "lastsave": Date.now(),
+            "snowballs": 0,
+            "lastascend": Date.now()
         }
     }
 
@@ -182,6 +246,15 @@ function snowflakeToHumidity(snowflakeam){
     return snowflakeam**1.15/1000/100
 }
 
+function snowflakeToSnowball(snowflakeam){
+    // really cool formula
+    let snowballamt = Math.log(snowflakeam)/Math.log(9)-4
+    if(upgrades[8].bought>0){
+        snowballamt = snowballamt * 1.5
+    }
+    return snowballamt;
+}
+
 function update(){
     document.getElementById('snowflakeamount').innerHTML = Math.round(player.snowflakes) + autoplural(' snowflake', player.snowflakes)
     document.getElementById('asft').innerHTML = Math.round(document.getElementById('asfr').value/10)/100 + 's'
@@ -193,10 +266,24 @@ function update(){
     } else{
         document.getElementById('tmsnow').classList.add('hidden')
     }
+
+    if(snowflakeToSnowball(player.snowflakes) > 1){
+        document.getElementById('ascendbutton').classList.remove('hidden')
+        document.getElementById('ascendbutton').innerHTML = `CREATE SNOWBALL (+${Math.floor(snowflakeToSnowball(player.snowflakes))})`
+    } else{
+        document.getElementById('ascendbutton').classList.add('hidden')
+    }
+
+    if(player.snowballs>0){
+        document.getElementById('snowballamount').classList.remove('hidden')
+        document.getElementById('snowballamount').innerHTML = player.snowballs + autoplural(' snowball', player.snowballs)
+    } else{
+        document.getElementById('snowballamount').classList.add('hidden')
+    }
 }
 
 function updateUpgrades(){
-    document.getElementById('upgrades').innerHTML = '<h1>Upgrades</h1>'
+    document.getElementById('upgrades').innerHTML = '<h1>Upgrades</h1><button class="boughtupgmenu" onclick="toggleupgrademenu()">See current upgrades</button>'
     for(let j in upgrades){
         let i = upgrades[j]
         if(i.bought==0||i.repeatable){
@@ -217,6 +304,15 @@ function updateUpgrades(){
             upgradeDiv.appendChild(upgName)
             upgradeDiv.appendChild(upgCost)
             upgradeDiv.appendChild(upgDesc)
+
+            switch (i.currency){
+                case CTYPES.SNOWFLAKES:
+                    upgradeDiv.classList.add('snowflakeupg')
+                    break
+                case CTYPES.SNOWBALLS:
+                    upgradeDiv.classList.add('snowballupg')
+                    break
+            }
 
             upgradeDiv.addEventListener('click', function(){
                 console.log(player[i.currency])
@@ -242,10 +338,20 @@ function giveSnowflakes(amount){
     if(upgrades[1]["bought"]>0){
         amount = amount * Math.max(0.5*Math.log(player.snowflakes),1)
     }
-    if(upgrades[3]["bought"]){
+    if(upgrades[3]["bought"]>0){
         amount = 3*amount
     }
     amount = amount * (1-snowflakeToHumidity(player.snowflakes))
+
+    if(upgrades[5]["bought"]>0){
+        if(Math.random()<0.2){
+            amount = amount * 3
+        }
+    }
+
+    if(upgrades[8]["bought"]>0){
+        amount = amount * 1.5
+    }
 
     player.snowflakes+=amount
     update()
@@ -256,6 +362,29 @@ document.getElementById('snowflake').addEventListener('click', function(){
 })
 
 document.getElementById('saveb').addEventListener('click', save)
+
+function ascend(){
+    player.snowballs = player.snowballs + Math.floor(snowflakeToSnowball(player.snowflakes))
+    player.lastascend = Date.now()
+    player.snowflakes = 0
+    player.boughtupgrades = []
+    player.perclick = 1
+    player.persecond = 0
+    for(upgrade of upgrades){
+        if(upgrade.currency==CTYPES.SNOWFLAKES){
+            upgrade.bought = 0
+        }
+        if(upgrade.basecost){
+            upgrade.cost = upgrade.basecost
+        }
+    }
+    updateAll()
+}
+document.getElementById('ascendbutton').addEventListener('click', function(){
+    if(confirm('Would you like to lose ALL your progress for ' + Math.floor(snowflakeToSnowball(player.snowflakes)) + ' snowballs?')){
+        ascend()
+    }
+})
 
 let saveInterval = setInterval(save, player.settings.autosavefrequency)
 
@@ -286,5 +415,10 @@ document.getElementById('settings').addEventListener('click', function(){
     }
 })
 
-update()
-updateUpgrades()
+function updateAll(){
+    update()
+    updateUpgrades()
+    updateInterval()
+}
+
+updateAll()

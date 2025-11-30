@@ -11,6 +11,8 @@
         <img class="settings" id="settings" src="gear.png">
         <span class="saveb" id="saveb">Save!</span>
         <div class="maingame">
+            <h1 id="ascendbutton" class="ascendb hidden">CREATE SNOWBALL (+0)</h1>
+            <h3 id="snowballamount" class="sbamount hidden">0 snowballs</h3>
             <h1 id="snowflakeamount" class="sfamount">0 snowflakes</h1>
             <h6 id="tmsnow">Your snowflake amount is reducing the humidity by 0%!</h6> <!--tmsnow = too much snow-->
             <div class="rotator">
@@ -48,8 +50,8 @@
             <button onclick="if(confirm('ARE YOU SURE YOU WOULD LIKE TO CLEAR *ALL* YOUR PROGRESS? THIS IS IRREVERSIBLE.')){localStorage.clear();load();update();updateUpgrades()}">CLEAR ALL PROGRESS</button>
             <h2>Visual</h2>
             <span>Snowflake rotation speed: </span>
-            <input id="spinspeed" type="range" min="0" max="5" step="0.01" value="0.83">
-            <span id="spintext">0.83 rpm</span>
+            <input id="spinspeed" type="range" min="0" max="5" step="0.01" value="1.20">
+            <span id="spintext">1.20 rpm</span>
         </div>
         <script src="script.js"></script>
     </body>

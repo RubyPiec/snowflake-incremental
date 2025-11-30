@@ -35,6 +35,26 @@ html, body{
     top: 50%;
     transform: translate(-50%, -50%);
 }
+.ascendb{
+    z-index: 5;
+    background-color: rgb(117, 117, 0);
+    border:3px solid gold;
+    -webkit-box-shadow:0px 0px 100px 20px gold;
+    -moz-box-shadow: 0px 0px 100px 20px gold;
+    box-shadow: 0px 0px 100px 20px gold;
+    width: 50%;
+    border-radius: 5px;
+    position: absolute;
+    top: -25%;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: background-color 0.1s;
+    cursor: pointer;
+}
+
+.ascendb:hover{
+    background-color: rgb(243, 243, 0);
+}
 
 .upgrades{
     overflow-y: scroll;
@@ -53,7 +73,6 @@ html, body{
 
 .upgrades .upgrade{
     cursor: pointer;
-    background: linear-gradient(90deg,rgba(15, 15, 15, 1) 0%, rgba(41, 41, 41, 1) 100%);
     border: 5px solid white;
     border-radius: 10px;
     padding-left: 5%;
@@ -61,6 +80,22 @@ html, body{
     position: relative;
     margin-bottom: 5%;
     transition: transform 0.3s;
+}
+
+.snowflakeupg{
+    background: linear-gradient(90deg,rgba(15, 15, 15, 1) 0%, rgba(41, 41, 41, 1) 100%);
+}
+
+.snowballupg{
+    background: linear-gradient(90deg,rgb(22, 24, 0) 0%, rgb(83, 81, 77) 100%);
+}
+
+.sfamount{
+    margin-top: 0;
+}
+.sbamount{
+    color: yellow;
+    margin: 0;
 }
 
 .upgrade:hover{
@@ -136,6 +171,12 @@ html, body{
 .saveb:hover{
     transform: scale(1.1);
     background-color: rgba(255,255,255,0.2);
+}
+
+.boughtupgmenu{
+    position: relative;
+    bottom: 80px;
+    left: 300px;
 }
 
 @keyframes fadeout{
