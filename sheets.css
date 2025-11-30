@@ -83,6 +83,10 @@ html, body{
     position: absolute;
 }
 
+.settings:hover{
+    animation: rotate 1.5s;
+}
+
 .settingsmenu{
     background-color: rgba(10, 10, 10, 0.9);
     border: 5px solid grey;
@@ -114,6 +118,24 @@ html, body{
 
 .fadeout{
     animation: 2s fadeout forwards;
+}
+
+.saveb{
+    width: 65px;
+    border-width: 2px;
+    border-style: solid;
+    border-image: radial-gradient(circle,rgba(255, 255, 255, 1) 0%, rgb(212, 212, 252) 100%) 1;
+    text-align: center;
+    cursor: pointer;
+    position: absolute;
+    left: 25px;
+    top: 125px;
+    transition: transform 0.5s;
+}
+
+.saveb:hover{
+    transform: scale(1.1);
+    background-color: rgba(255,255,255,0.2);
 }
 
 @keyframes fadeout{

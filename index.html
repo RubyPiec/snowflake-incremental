@@ -9,8 +9,10 @@
         <h3>dont forget to like subscribe adn like again</h3>
         <h4>thanks</h4>-->
         <img class="settings" id="settings" src="gear.png">
+        <span class="saveb" id="saveb">Save!</span>
         <div class="maingame">
             <h1 id="snowflakeamount" class="sfamount">0 snowflakes</h1>
+            <h6 id="tmsnow">Your snowflake amount is reducing the humidity by 0%!</h6> <!--tmsnow = too much snow-->
             <div class="rotator">
                 <img id="snowflake" class="snowflake" src="snowflake.png" draggable="false">
             </div>
@@ -37,7 +39,17 @@
             <input id="asfr" type="range" min="500" max="20000" value=10000> <!-- Auto Save Frequency Range -->
             <span id="asft">10s</span> <!-- Range -> Text -->
             <br>
+            <span>Offline progress:</span>
+            <input id="offline" type="checkbox" checked=true onclick="player.settings.offlineprogress = !player.settings.offlineprogress">
+            <br>
+            <button onclick="navigator.clipboard.writeText(btoa(JSON.stringify(player))); alert('Save file exported to clipboard!')">Export Save</button>
+            <button onclick="let savefile = atob(prompt('Please import your save file.')); if(savefile[0]=='{'){localStorage.setItem('playerdata', savefile);load()}else{alert('Unable to load. Save file might be corrupted.')}">Import Save</button>
+            <br>
             <button onclick="if(confirm('ARE YOU SURE YOU WOULD LIKE TO CLEAR *ALL* YOUR PROGRESS? THIS IS IRREVERSIBLE.')){localStorage.clear();load();update();updateUpgrades()}">CLEAR ALL PROGRESS</button>
+            <h2>Visual</h2>
+            <span>Snowflake rotation speed: </span>
+            <input id="spinspeed" type="range" min="0" max="5" step="0.01" value="0.83">
+            <span id="spintext">0.83 rpm</span>
         </div>
         <script src="script.js"></script>
     </body>
