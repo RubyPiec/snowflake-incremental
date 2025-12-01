@@ -29,8 +29,26 @@ let listofachievements = {
     },
     "humidity": {
         "name": "There's the humidity!",
-        "displayname": "Humidity",
+        "displayname": "Humidity!",
         "desc": "After getting No humidity, get your humidity reduction back below 5%.",
+        "obtained": false
+    },
+    "snowball": {
+        "name": "Use it wisely",
+        "displayname": "Snowball",
+        "desc": "Get 1 snowball",
+        "obtained": false
+    },
+    "snowballs": {
+        "name": "Snowball fight!",
+        "displayname": "Snowball fight",
+        "desc": "Get 3 snowballs",
+        "obtained": false
+    },
+    "millions": {
+        "name": "In the millions!",
+        "displayname": "1e6",
+        "desc": "Get 1 million snowflakes",
         "obtained": false
     }
 }
@@ -46,9 +64,11 @@ for([id, ach] of Object.entries(listofachievements)){
     let tooltip = document.createElement('span')
     tooltip.classList.add('achdesc')
     tooltip.innerHTML = ach.desc
-    achievementName.appendChild(tooltip)
 
     achievement.appendChild(achievementName)
+    achievement.appendChild(tooltip)
+
+    achievement.id = 'ach_'+id
 
     document.getElementById('achievements').appendChild(achievement)
 }
@@ -57,6 +77,7 @@ function obtainAchievement(id){
     if(!player.achievementsobtained.includes(id)){
         listofachievements[id].obtained = true
         player.achievementsobtained.push(id)
+        document.getElementById('ach_'+id).style.backgroundColor = 'green'
         //also do cool achievement animation ig
     }
 }
@@ -228,7 +249,7 @@ let upgrades = [
         "name": "beat the game?!?!?!",
         "cost": 1500,
         "currency": CTYPES.SNOWBALLS,
-        "desc": "PogChamp ggs chat isnt this hype af",
+        "desc": "Self-explanatory. Does nothing though. Also probably unobtainable.",
         "onbuy": function(){
 
         },
@@ -293,6 +314,7 @@ function load(){
             }
         }
         for(let i of player.achievementsobtained){
+            document.getElementById('ach_'+i).style.backgroundColor = 'green'
             listofachievements[i].obtained = true
         }
     } else{
@@ -374,6 +396,13 @@ function update(){
         document.getElementById('tmsnow').innerHTML = `Your snowflake amount is decreasing the humidity by ${Math.round(100*snowflakeToHumidity(player.snowflakes))}%!`
     } else{
         document.getElementById('tmsnow').classList.add('hidden')
+        if(player.achievementsobtained.includes('nohumidity')){
+            obtainAchievement('humidity')
+        }
+    }
+
+    if(snowflakeToHumidity(player.snowflakes) > 0.3){
+        obtainAchievement('nohumidity')
     }
 
     if(snowflakeToSnowball(player.snowflakes) > 1){
@@ -396,6 +425,9 @@ function update(){
     }
     if(player.snowflakes >= 1000){
         obtainAchievement('thousands')
+    }
+    if(player.snowflakes >= 1e6){
+        obtainAchievement('millions')
     }
 }
 
@@ -488,6 +520,12 @@ document.getElementById('saveb').addEventListener('click', save)
 
 function ascend(){
     player.snowballs = player.snowballs + Math.floor(snowflakeToSnowball(player.snowflakes))
+    if(player.snowballs>=1){
+        obtainAchievement('snowball')
+    }
+    if(player.snowballs>=3){
+        obtainAchievement('snowballs')
+    }
     player.lastascend = Date.now()
     player.snowflakes = 0
     player.boughtupgrades = []
